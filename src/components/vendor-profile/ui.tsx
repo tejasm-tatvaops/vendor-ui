@@ -47,6 +47,17 @@ function pickString(...candidates: unknown[]): string | undefined {
 }
 
 function pickProfileImage(vendor: Record<string, unknown>): string | undefined {
+  const profile = vendor.profileImage;
+
+  // ✅ handle object case (YOUR API)
+  if (typeof profile === "object" && profile !== null) {
+    const url = (profile as { url?: unknown }).url;
+    if (typeof url === "string" && url.length > 0) {
+      return url;
+    }
+  }
+
+  // fallback (existing logic)
   return pickString(
     vendor.profileImage,
     vendor.profile_image,
