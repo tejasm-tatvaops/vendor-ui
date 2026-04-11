@@ -1,73 +1,101 @@
-# React + TypeScript + Vite
+# TatvaOps Vendor Profile Page
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Production-ready vendor profile page for TatvaOps, built with React + TypeScript + Vite + Tailwind.
 
-Currently, two official plugins are available:
+## Links
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- GitHub repo: [tejasm-tatvaops/vendor-ui](https://github.com/tejasm-tatvaops/vendor-ui)
+- Live app (Vercel): [vendor-profilepage.vercel.app](https://vendor-profilepage.vercel.app)
+- Deployment URL: [vendor-profilepage-3bi9ydu0h-coooltejasdagr-5865s-projects.vercel.app](https://vendor-profilepage-3bi9ydu0h-coooltejasdagr-5865s-projects.vercel.app)
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Dynamic vendor profile data from Supabase
+- Ratings and review breakdown
+- Portfolio with before/after comparison slider
+- Pricing tiers, availability, trust score, AI insight
+- Certifications gallery with document preview
+- Sticky CTA actions and location map
+- Loading skeletons, empty states, and error states
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 19 + TypeScript
+- Vite
+- TailwindCSS
+- Supabase JS client
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Project Setup
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 1) Clone and install
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/tejasm-tatvaops/vendor-ui.git
+cd vendor-ui
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2) Add environment variables
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Create `.env.local` in the project root:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_VENDOR_ID=your_default_vendor_uuid
+VITE_BOOK_SITE_VISIT_URL=https://your-site-visit-link
+VITE_CONTACT_TATVAOPS_URL=https://your-contact-link
 ```
+
+Notes:
+- `VITE_VENDOR_ID` is used as default if no `vendorId` query param is present.
+- You can override vendor at runtime with `?vendorId=<uuid>`.
+
+### 3) Run locally
+
+```bash
+npm run dev
+```
+
+Open the local URL printed by Vite (usually `http://localhost:5173`).
+
+## Build and Preview
+
+```bash
+npm run build
+npm run preview
+```
+
+## Deploy to Vercel
+
+### First-time setup
+
+```bash
+npm i -g vercel
+vercel login
+vercel --prod --name vendor-profilepage
+```
+
+### Subsequent deployments
+
+```bash
+vercel --prod
+```
+
+After deploy, configure the same `VITE_*` variables in Vercel Project Settings -> Environment Variables.
+
+## Runtime Wiring
+
+- Vendor resolution:
+  - Query param: `?vendorId=<uuid>`
+  - Fallback: `VITE_VENDOR_ID`
+- CTA URLs:
+  - `VITE_BOOK_SITE_VISIT_URL`
+  - `VITE_CONTACT_TATVAOPS_URL`
+
+## Available Scripts
+
+- `npm run dev` - start local dev server
+- `npm run build` - type-check + production build
+- `npm run preview` - preview production build locally
+- `npm run lint` - run lint checks

@@ -12,7 +12,7 @@ import { TrustScore } from "../components/vendor-profile/TrustScore";
 import { VendorHeader } from "../components/vendor-profile/VendorHeader";
 import { runtimeConfig, resolveVendorId } from "../config/runtime";
 import { PortfolioSkeleton, ReviewsSkeleton, VendorHeaderSkeleton } from "../components/vendor-profile/Skeletons";
-import { ErrorState, SkeletonBlock, SkeletonCard } from "../components/vendor-profile/ui";
+import { ErrorState, SkeletonBlock, SkeletonCard, VendorBrandApiPanel } from "../components/vendor-profile/ui";
 import { calculateTrustScore, calculateTrustScoreBreakdown, getDisplayExperience } from "../components/vendor-profile/utils";
 import type { CertificationDocument, PortfolioItem, PricingTier, ReviewItem, VendorData } from "../data/vendorMockData";
 import { supabase } from "../lib/supabase";
@@ -435,6 +435,7 @@ export default function VendorProfilePage() {
       <main className="min-h-screen bg-slate-50 py-8">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
           <div className="space-y-6">
+            <VendorBrandApiPanel />
             <VendorHeaderSkeleton />
             <PortfolioSkeleton />
             <ReviewsSkeleton />
@@ -462,6 +463,7 @@ export default function VendorProfilePage() {
     <main className="min-h-screen bg-slate-50 py-6 sm:py-8">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
         <div className="space-y-6">
+          <VendorBrandApiPanel />
           <VendorHeader
             vendor={vendor}
             experience={experience}
