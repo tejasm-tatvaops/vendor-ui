@@ -1,5 +1,5 @@
 import axios, { isAxiosError } from "axios";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export const cardClassName =
   "rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md";
@@ -114,6 +114,95 @@ function toArray(value: unknown): unknown[] {
   return [];
 }
 
+function initialsFromDisplayName(fullName: string, companyName: string): string {
+  const base = fullName !== "—" ? fullName : companyName !== "—" ? companyName : "";
+  const parts = base.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    const a = parts[0]?.[0];
+    const b = parts[1]?.[0];
+    if (a && b) return `${a}${b}`.toUpperCase();
+  }
+  if (parts.length === 1) {
+    const w = parts[0];
+    if (w.length >= 2) return w.slice(0, 2).toUpperCase();
+    if (w.length === 1) return `${w[0]}`.toUpperCase();
+  }
+  return "?";
+}
+
+function BrandAvatar({
+  fullName,
+  companyName,
+  imageUrl
+}: {
+  fullName: string;
+  companyName: string;
+  imageUrl?: string;
+}) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const initials = useMemo(() => initialsFromDisplayName(fullName, companyName), [fullName, companyName]);
+  const showPhoto = Boolean(imageUrl) && !imageFailed;
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [imageUrl]);
+
+  return (
+    <div
+      className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-slate-100 to-slate-200 shadow-inner ring-1 ring-white/80"
+      aria-label={showPhoto ? `${fullName} profile photo` : `${fullName} avatar, no photo`}
+    >
+      {showPhoto ? (
+        <img
+          src={imageUrl}
+          alt=""
+          className="h-full w-full object-cover"
+          loading="lazy"
+          onError={() => setImageFailed(true)}
+        />
+      ) : (
+        <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-indigo-600 to-violet-700 px-1 text-center">
+          <span className="text-lg font-bold tracking-tight text-white drop-shadow-sm">{initials}</span>
+          <span className="mt-0.5 max-w-full truncate px-1 text-[9px] font-medium uppercase leading-tight text-white/80">
+            No photo
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function VendorBrandApiPanelSkeleton() {
+  return (
+    <div className="space-y-8" aria-busy="true" aria-label="Loading brand profile">
+      <div className="flex gap-5">
+        <SkeletonBlock className="h-24 w-24 shrink-0 rounded-2xl" />
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-3">
+          <SkeletonBlock className="h-3 w-28 rounded-md" />
+          <SkeletonBlock className="h-7 w-4/5 max-w-md rounded-md" />
+          <SkeletonBlock className="h-4 w-3/5 max-w-sm rounded-md" />
+        </div>
+      </div>
+      <div>
+        <SkeletonBlock className="mb-4 h-4 w-32 rounded-md" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <SkeletonBlock className="h-24 rounded-xl" />
+          <SkeletonBlock className="h-24 rounded-xl" />
+          <SkeletonBlock className="h-24 rounded-xl sm:max-lg:col-span-2 lg:col-span-1" />
+        </div>
+      </div>
+      <div>
+        <SkeletonBlock className="mb-3 h-4 w-40 rounded-md" />
+        <div className="space-y-2 rounded-xl border border-slate-100 bg-slate-50/80 p-3">
+          <SkeletonBlock className="h-4 w-full rounded-md" />
+          <SkeletonBlock className="h-4 w-11/12 rounded-md" />
+          <SkeletonBlock className="h-4 w-4/5 rounded-md" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Fetches TatvaOps vendor brand data and renders vendor identity, services, and portfolio summary.
  * Independent of Supabase; use alongside existing profile sections.
@@ -170,18 +259,12 @@ export function VendorBrandApiPanel({ apiUrl, className = "" }: VendorBrandApiPa
     if (state.status !== "success") return null;
     const { fullName, companyName, profileImageUrl } = normalizeVendorFromApi(state.payload.vendor);
     return (
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-          {profileImageUrl ? (
-            <img src={profileImageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
-          ) : (
-            <div className="grid h-full w-full place-items-center text-xs font-medium text-slate-400">No image</div>
-          )}
-        </div>
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Brand API</p>
-          <h2 className="truncate text-xl font-semibold text-slate-900">{fullName}</h2>
-          <p className="truncate text-sm text-slate-600">{companyName}</p>
+      <div className="flex flex-col gap-5 border-b border-slate-100 pb-6 sm:flex-row sm:items-center">
+        <BrandAvatar fullName={fullName} companyName={companyName} imageUrl={profileImageUrl} />
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-600">Brand profile</p>
+          <h2 className="mt-1 truncate text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">{fullName}</h2>
+          <p className="mt-0.5 truncate text-sm text-slate-600">{companyName}</p>
         </div>
       </div>
     );
@@ -191,18 +274,30 @@ export function VendorBrandApiPanel({ apiUrl, className = "" }: VendorBrandApiPa
     if (state.status !== "success") return null;
     const services = toArray(state.payload.services).map(normalizeServiceLabel);
     if (services.length === 0) {
-      return <p className="text-sm text-slate-500">No services returned for this brand.</p>;
+      return (
+        <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50/90 px-4 py-6 text-center text-sm text-slate-500">
+          No services returned for this brand.
+        </p>
+      );
     }
     return (
       <div>
-        <p className="mb-2 text-sm font-semibold text-slate-800">Services</p>
-        <ul className="flex flex-wrap gap-2">
+        <div className="mb-4 flex items-end justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900">Services</h3>
+            <p className="text-xs text-slate-500">{services.length} offered</p>
+          </div>
+        </div>
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((label, i) => (
             <li
               key={`${label}-${i}`}
-              className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700"
+              className="group flex min-h-[5.5rem] flex-col justify-between rounded-xl border border-slate-200/90 bg-gradient-to-b from-white to-slate-50/90 p-4 shadow-sm transition hover:border-indigo-200 hover:shadow-md"
             >
-              {label}
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-xs font-bold text-indigo-700 ring-1 ring-indigo-100 transition group-hover:bg-indigo-100">
+                {i + 1}
+              </span>
+              <p className="mt-3 text-sm font-medium leading-snug text-slate-800">{label}</p>
             </li>
           ))}
         </ul>
@@ -214,15 +309,27 @@ export function VendorBrandApiPanel({ apiUrl, className = "" }: VendorBrandApiPa
     if (state.status !== "success") return null;
     const items = toArray(state.payload.portfolios).map(normalizePortfolioLabel);
     if (items.length === 0) {
-      return <p className="text-sm text-slate-500">No portfolios in this response.</p>;
+      return (
+        <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50/90 px-4 py-6 text-center text-sm text-slate-500">
+          No portfolios in this response.
+        </p>
+      );
     }
     return (
       <div>
-        <p className="mb-2 text-sm font-semibold text-slate-800">Portfolios ({items.length})</p>
-        <ul className="max-h-40 space-y-1 overflow-y-auto text-sm text-slate-600">
+        <h3 className="mb-3 text-sm font-semibold text-slate-900">
+          Portfolios <span className="font-normal text-slate-500">({items.length})</span>
+        </h3>
+        <ul className="max-h-44 space-y-0 overflow-y-auto rounded-xl border border-slate-100 bg-slate-50/50 p-1">
           {items.map((title, i) => (
-            <li key={`${title}-${i}`} className="truncate border-b border-slate-100 py-1 last:border-0">
-              {title}
+            <li
+              key={`${title}-${i}`}
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-700 transition hover:bg-white hover:shadow-sm"
+            >
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white text-[10px] font-semibold text-slate-400 shadow-sm ring-1 ring-slate-100">
+                {i + 1}
+              </span>
+              <span className="min-w-0 truncate">{title}</span>
             </li>
           ))}
         </ul>
@@ -233,17 +340,8 @@ export function VendorBrandApiPanel({ apiUrl, className = "" }: VendorBrandApiPa
   return (
     <section className={`${cardClassName} ${className}`.trim()}>
       {state.status === "loading" || state.status === "idle" ? (
-        <div className="space-y-4 animate-pulse">
-          <div className="flex gap-4">
-            <SkeletonBlock className="h-20 w-20 shrink-0 rounded-2xl" />
-            <div className="flex-1 space-y-2 pt-1">
-              <SkeletonBlock className="h-3 w-24" />
-              <SkeletonBlock className="h-5 w-3/4 max-w-xs" />
-              <SkeletonBlock className="h-4 w-1/2 max-w-sm" />
-            </div>
-          </div>
-          <SkeletonBlock className="h-4 w-full" />
-          <SkeletonBlock className="h-4 w-5/6" />
+        <div className="animate-pulse">
+          <VendorBrandApiPanelSkeleton />
         </div>
       ) : null}
 
