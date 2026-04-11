@@ -143,6 +143,50 @@ function toArray(value: unknown): unknown[] {
   return [];
 }
 
+type BrandPortfolioImageEntry = { url: string; label: string };
+
+function extractHttpUrlString(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const t = value.trim();
+  if (!t || !isValidHttpUrlCandidate(t)) return undefined;
+  return t;
+}
+
+/**
+ * Image URLs from brand API shape: each portfolio may contain nested `portfolios[]` with `url`.
+ * Also picks a parent-level `url` when present (deduped).
+ */
+function extractBrandPortfolioImages(portfoliosRoot: unknown): BrandPortfolioImageEntry[] {
+  const items = toArray(portfoliosRoot);
+  const seen = new Set<string>();
+  const result: BrandPortfolioImageEntry[] = [];
+
+  for (const raw of items) {
+    if (!isRecord(raw)) continue;
+    const label = normalizePortfolioLabel(raw);
+
+    const nested = raw.portfolios;
+    if (Array.isArray(nested)) {
+      for (const entry of nested) {
+        if (!isRecord(entry)) continue;
+        const url = extractHttpUrlString(entry.url);
+        if (!url || seen.has(url)) continue;
+        seen.add(url);
+        const innerLabel = pickString(entry.title, entry.name, entry.caption, entry.label);
+        result.push({ url, label: innerLabel ?? label });
+      }
+    }
+
+    const parentUrl = extractHttpUrlString(raw.url);
+    if (parentUrl && !seen.has(parentUrl)) {
+      seen.add(parentUrl);
+      result.push({ url: parentUrl, label });
+    }
+  }
+
+  return result;
+}
+
 function initialsFromDisplayName(fullName: string, companyName: string): string {
   const base = fullName !== "—" ? fullName : companyName !== "—" ? companyName : "";
   const parts = base.trim().split(/\s+/).filter(Boolean);
@@ -265,10 +309,10 @@ function VendorBrandApiPanelSkeleton() {
       </div>
       <div>
         <SkeletonBlock className="mb-3 h-4 w-40 rounded-md" />
-        <div className="space-y-2 rounded-xl border border-slate-100 bg-slate-50/80 p-3">
-          <SkeletonBlock className="h-4 w-full rounded-md" />
-          <SkeletonBlock className="h-4 w-11/12 rounded-md" />
-          <SkeletonBlock className="h-4 w-4/5 rounded-md" />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <SkeletonBlock key={i} className="aspect-square rounded-xl shadow-sm ring-1 ring-slate-100/80" />
+          ))}
         </div>
       </div>
     </div>
@@ -379,32 +423,36 @@ export function VendorBrandApiPanel({ apiUrl, className = "" }: VendorBrandApiPa
 
   const portfoliosBlock = () => {
     if (state.status !== "success") return null;
-    const items = toArray(state.payload.portfolios).map(normalizePortfolioLabel);
-    if (items.length === 0) {
+    const images = extractBrandPortfolioImages(state.payload.portfolios);
+    if (images.length === 0) {
       return (
         <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50/90 px-4 py-6 text-center text-sm text-slate-500">
-          No portfolios in this response.
+          No portfolio images in this response.
         </p>
       );
     }
     return (
       <div>
         <h3 className="mb-3 text-sm font-semibold text-slate-900">
-          Portfolios <span className="font-normal text-slate-500">({items.length})</span>
+          Portfolios <span className="font-normal text-slate-500">({images.length} images)</span>
         </h3>
-        <ul className="max-h-44 space-y-0 overflow-y-auto rounded-xl border border-slate-100 bg-slate-50/50 p-1">
-          {items.map((title, i) => (
-            <li
-              key={`${title}-${i}`}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-700 transition hover:bg-white hover:shadow-sm"
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {images.map((item, i) => (
+            <figure
+              key={`${item.url}-${i}`}
+              className="group overflow-hidden rounded-xl border border-slate-200/90 bg-slate-100 shadow-sm ring-1 ring-slate-100/80 transition duration-300 hover:border-indigo-200/70 hover:shadow-md"
             >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white text-[10px] font-semibold text-slate-400 shadow-sm ring-1 ring-slate-100">
-                {i + 1}
-              </span>
-              <span className="min-w-0 truncate">{title}</span>
-            </li>
+              <div className="aspect-square overflow-hidden">
+                <img
+                  src={item.url}
+                  alt={item.label}
+                  className="h-full w-full object-cover transition duration-500 ease-out will-change-transform group-hover:scale-110"
+                  loading="lazy"
+                />
+              </div>
+            </figure>
           ))}
-        </ul>
+        </div>
       </div>
     );
   };
