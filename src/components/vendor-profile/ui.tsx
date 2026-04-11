@@ -46,21 +46,26 @@ function pickString(...candidates: unknown[]): string | undefined {
   return undefined;
 }
 
-function pickProfileImage(vendor: Record<string, unknown>): string | undefined {
-  const profile = vendor.profileImage;
-
-  // ✅ handle object case (YOUR API)
-  if (typeof profile === "object" && profile !== null) {
-    const url = (profile as { url?: unknown }).url;
-    if (typeof url === "string" && url.length > 0) {
-      return url;
-    }
+/** API may return `{ url: string }` or a plain URL string. */
+function extractUrlFromProfileImageField(value: unknown): string | undefined {
+  if (typeof value === "string") {
+    const t = value.trim();
+    return t.length > 0 ? t : undefined;
   }
+  if (!isRecord(value)) return undefined;
+  const raw = value.url;
+  if (typeof raw !== "string") return undefined;
+  const t = raw.trim();
+  return t.length > 0 ? t : undefined;
+}
 
-  // fallback (existing logic)
+function pickProfileImage(vendor: Record<string, unknown>): string | undefined {
+  const fromNested =
+    extractUrlFromProfileImageField(vendor.profileImage) ??
+    extractUrlFromProfileImageField(vendor.profile_image);
+  if (fromNested) return fromNested;
+
   return pickString(
-    vendor.profileImage,
-    vendor.profile_image,
     vendor.profilePhoto,
     vendor.profile_photo,
     vendor.image,
@@ -70,6 +75,19 @@ function pickProfileImage(vendor: Record<string, unknown>): string | undefined {
     vendor.logoUrl,
     vendor.logo_url
   );
+}
+
+const BRAND_AVATAR_PLACEHOLDER_SRC = "/vendor_image.png";
+
+function isValidHttpUrlCandidate(value: string): boolean {
+  const t = value.trim();
+  if (!t) return false;
+  try {
+    const u = new URL(t);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
 }
 
 export function normalizeVendorFromApi(vendor: unknown): {
@@ -150,26 +168,69 @@ function BrandAvatar({
   companyName: string;
   imageUrl?: string;
 }) {
-  const [imageFailed, setImageFailed] = useState(false);
   const initials = useMemo(() => initialsFromDisplayName(fullName, companyName), [fullName, companyName]);
-  const showPhoto = Boolean(imageUrl) && !imageFailed;
+
+  const debugOverride = useMemo(() => {
+    const raw = import.meta.env.VITE_DEBUG_BRAND_IMAGE_URL;
+    return typeof raw === "string" && raw.trim().length > 0 ? raw.trim() : undefined;
+  }, []);
+
+  const apiUrl = useMemo(() => {
+    const raw = (debugOverride ?? imageUrl)?.trim();
+    if (!raw) return undefined;
+    return isValidHttpUrlCandidate(raw) ? raw : undefined;
+  }, [debugOverride, imageUrl]);
+
+  const [apiLoadFailed, setApiLoadFailed] = useState(false);
+  const [placeholderLoadFailed, setPlaceholderLoadFailed] = useState(false);
 
   useEffect(() => {
-    setImageFailed(false);
-  }, [imageUrl]);
+    setApiLoadFailed(false);
+    setPlaceholderLoadFailed(false);
+  }, [imageUrl, debugOverride]);
+
+  const renderSrc = useMemo(() => {
+    if (placeholderLoadFailed) return null;
+    if (apiUrl && !apiLoadFailed) return apiUrl;
+    return BRAND_AVATAR_PLACEHOLDER_SRC;
+  }, [apiLoadFailed, apiUrl, placeholderLoadFailed]);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    console.log("[BrandAvatar] profile image URL", {
+      extractedFromApi: imageUrl?.trim() ?? null,
+      debugOverride: debugOverride ?? null,
+      resolvedApiUrl: apiUrl ?? null,
+      renderSrc: renderSrc ?? "(initials fallback)",
+      apiLoadFailed,
+      placeholderLoadFailed
+    });
+  }, [apiLoadFailed, apiUrl, debugOverride, imageUrl, placeholderLoadFailed, renderSrc]);
+
+  const showImage = renderSrc !== null;
 
   return (
     <div
       className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-slate-100 to-slate-200 shadow-inner ring-1 ring-white/80"
-      aria-label={showPhoto ? `${fullName} profile photo` : `${fullName} avatar, no photo`}
+      aria-label={
+        showImage
+          ? `${fullName} profile photo`
+          : `${fullName} avatar, image unavailable`
+      }
     >
-      {showPhoto ? (
+      {showImage ? (
         <img
-          src={imageUrl}
+          src={renderSrc}
           alt=""
           className="h-full w-full object-cover"
           loading="lazy"
-          onError={() => setImageFailed(true)}
+          onError={() => {
+            if (apiUrl && !apiLoadFailed) {
+              setApiLoadFailed(true);
+              return;
+            }
+            setPlaceholderLoadFailed(true);
+          }}
         />
       ) : (
         <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-indigo-600 to-violet-700 px-1 text-center">
