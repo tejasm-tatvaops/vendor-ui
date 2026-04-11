@@ -154,14 +154,16 @@ const mapPortfolio = (rows: PortfolioRow[]): PortfolioItem[] =>
         "https://www.youtube.com/watch?v=jNQXAC9IVRw"
       ];
       const pair = samplePairs[index % samplePairs.length];
-      const beforeImage = row.before_image_url ?? pair.before;
-      const afterImage = row.after_image_url ?? pair.after;
+      const hasProjectImage = Boolean(row.image_url);
+      const beforeImage = row.before_image_url ?? (hasProjectImage ? undefined : pair.before);
+      const afterImage = row.after_image_url ?? (hasProjectImage ? undefined : pair.after);
+      const image = row.image_url ?? afterImage ?? beforeImage ?? pair.after;
       return {
         id: row.id,
         title: row.title ?? "Project",
         category: row.category as "Villas" | "Apartments" | "Interiors",
         date: toDisplayDate(row.date),
-        image: row.image_url ?? afterImage,
+        image,
         beforeImage,
         afterImage,
         youtubeUrl: row.youtube_url ?? sampleYoutubeLinks[index % sampleYoutubeLinks.length]

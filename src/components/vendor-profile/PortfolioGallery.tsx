@@ -1,7 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { PortfolioItem, ReviewItem } from "../../data/vendorMockData";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { EmptyState, SectionTitle, cardClassName } from "./ui";
+
+function uniqueImageUrls(urls: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const u of urls) {
+    if (u && !seen.has(u)) {
+      seen.add(u);
+      out.push(u);
+    }
+  }
+  return out;
+}
 
 type Props = {
   items: PortfolioItem[];
@@ -10,7 +22,7 @@ type Props = {
 
 export function PortfolioGallery({ items, testimonials }: Props) {
   const [pairIndexes, setPairIndexes] = useState<Record<string, number>>({});
-  const [pausedProjects, setPausedProjects] = useState<Record<string, boolean>>({});
+  const pausedProjectsRef = useRef<Record<string, boolean>>({});
   const [mediaMode, setMediaMode] = useState<Record<string, "gallery" | "youtube">>({});
 
   const normalized = useMemo(
@@ -18,30 +30,11 @@ export function PortfolioGallery({ items, testimonials }: Props) {
       items.map((item) => ({
         ...item,
         brief: `${item.title}. Delivered in ${item.date} with quality-focused execution and transparent updates.`,
-        beforeSlides: [item.beforeImage, item.image].filter((src): src is string => Boolean(src)),
-        afterSlides: [item.afterImage, item.image].filter((src): src is string => Boolean(src))
+        beforeSlides: uniqueImageUrls([item.beforeImage, item.image].filter((src): src is string => Boolean(src))),
+        afterSlides: uniqueImageUrls([item.afterImage, item.image].filter((src): src is string => Boolean(src)))
       })),
     [items]
   );
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setPairIndexes((prev) => {
-        const next = { ...prev };
-        normalized.forEach((project) => {
-          const pairLength = Math.max(project.beforeSlides.length, project.afterSlides.length);
-          if (pairLength > 1) {
-            if (pausedProjects[project.id]) return;
-            const current = next[project.id] ?? 0;
-            next[project.id] = (current + 1) % pairLength;
-          }
-        });
-        return next;
-      });
-    }, 2000);
-
-    return () => window.clearInterval(interval);
-  }, [normalized, pausedProjects]);
 
   const movePair = (projectId: string, direction: "prev" | "next", length: number) => {
     if (length <= 1) return;
@@ -63,6 +56,8 @@ export function PortfolioGallery({ items, testimonials }: Props) {
             const pairIndex = pairIndexes[project.id] ?? 0;
             const beforeSrc = project.beforeSlides[pairIndex % Math.max(project.beforeSlides.length, 1)] ?? project.image;
             const afterSrc = project.afterSlides[pairIndex % Math.max(project.afterSlides.length, 1)] ?? project.image;
+            const showSlideshowControls = pairLength > 1;
+            const singleSameImage = pairLength === 1 && beforeSrc === afterSrc;
 
             return (
               <article
@@ -107,31 +102,50 @@ export function PortfolioGallery({ items, testimonials }: Props) {
                   {(mediaMode[project.id] ?? "gallery") === "gallery" ? (
                     <div className="space-y-2">
                       <div
-                        onMouseEnter={() => setPausedProjects((prev) => ({ ...prev, [project.id]: true }))}
-                        onMouseLeave={() => setPausedProjects((prev) => ({ ...prev, [project.id]: false }))}
+                        onMouseEnter={() => {
+                          if (!showSlideshowControls) return;
+                          pausedProjectsRef.current[project.id] = true;
+                        }}
+                        onMouseLeave={() => {
+                          if (!showSlideshowControls) return;
+                          pausedProjectsRef.current[project.id] = false;
+                        }}
                       >
-                        <BeforeAfterSlider beforeSrc={beforeSrc} afterSrc={afterSrc} alt={project.title} />
+                        {singleSameImage ? (
+                          <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
+                            <img
+                              src={beforeSrc}
+                              alt={project.title}
+                              className="h-full w-full object-cover"
+                              loading="lazy"
+                            />
+                          </div>
+                        ) : (
+                          <BeforeAfterSlider beforeSrc={beforeSrc} afterSrc={afterSrc} alt={project.title} />
+                        )}
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <button
-                          type="button"
-                          className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600"
-                          onClick={() => movePair(project.id, "prev", pairLength)}
-                        >
-                          Prev Pair
-                        </button>
-                        <span className="text-xs text-slate-500">
-                          {Math.min(pairIndex + 1, pairLength)}/{pairLength}
-                        </span>
-                        <button
-                          type="button"
-                          className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600"
-                          onClick={() => movePair(project.id, "next", pairLength)}
-                        >
-                          Next Pair
-                        </button>
-                      </div>
+                      {showSlideshowControls ? (
+                        <div className="flex items-center justify-between">
+                          <button
+                            type="button"
+                            className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600"
+                            onClick={() => movePair(project.id, "prev", pairLength)}
+                          >
+                            Prev Pair
+                          </button>
+                          <span className="text-xs text-slate-500">
+                            {Math.min(pairIndex + 1, pairLength)}/{pairLength}
+                          </span>
+                          <button
+                            type="button"
+                            className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600"
+                            onClick={() => movePair(project.id, "next", pairLength)}
+                          >
+                            Next Pair
+                          </button>
+                        </div>
+                      ) : null}
                     </div>
                   ) : (
                     <div className="overflow-hidden rounded-lg border border-slate-200">
