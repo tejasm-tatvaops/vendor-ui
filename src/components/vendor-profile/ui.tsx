@@ -4,16 +4,13 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 export const cardClassName =
   "rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md";
 
-/** Default TatvaOps internal brand API; override with `VITE_TATVAOPS_VENDOR_BRAND_URL` (full URL). In dev, Vite proxies `/tatvaops-vendor-api` → `devapi.tatvaops.com` (see `vite.config.ts`). */
+/** Default TatvaOps internal brand API; override with `NEXT_PUBLIC_TATVAOPS_VENDOR_BRAND_URL` (full URL). */
 export function getDefaultVendorBrandApiUrl(): string {
-  const fromEnv = import.meta.env.VITE_TATVAOPS_VENDOR_BRAND_URL;
+  const fromEnv = process.env.NEXT_PUBLIC_TATVAOPS_VENDOR_BRAND_URL;
   if (typeof fromEnv === "string" && fromEnv.trim().length > 0) {
     return fromEnv.trim();
   }
   const path = "/vendor/api/vendor/internal/brand/69ba63cec205a63d3ff11d5f";
-  if (import.meta.env.DEV) {
-    return `/tatvaops-vendor-api${path}`;
-  }
   return `https://devapi.tatvaops.com${path}`;
 }
 

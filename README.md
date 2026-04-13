@@ -1,6 +1,6 @@
 # TatvaOps Vendor Profile Page
 
-Production-ready vendor profile page for TatvaOps, built with React + TypeScript + Vite + Tailwind.
+Production-ready vendor profile page for TatvaOps, built with Next.js + React + TypeScript + Tailwind.
 
 ## Links
 
@@ -20,8 +20,7 @@ Production-ready vendor profile page for TatvaOps, built with React + TypeScript
 
 ## Tech Stack
 
-- React 19 + TypeScript
-- Vite
+- Next.js 15 + React 19 + TypeScript
 - TailwindCSS
 - Supabase JS client
 
@@ -40,15 +39,15 @@ npm install
 Create `.env.local` in the project root:
 
 ```bash
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_VENDOR_ID=your_default_vendor_uuid
-VITE_BOOK_SITE_VISIT_URL=https://your-site-visit-link
-VITE_CONTACT_TATVAOPS_URL=https://your-contact-link
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_VENDOR_ID=your_default_vendor_uuid
+NEXT_PUBLIC_BOOK_SITE_VISIT_URL=https://your-site-visit-link
+NEXT_PUBLIC_CONTACT_TATVAOPS_URL=https://your-contact-link
 ```
 
 Notes:
-- `VITE_VENDOR_ID` is used as default if no `vendorId` query param is present.
+- `NEXT_PUBLIC_VENDOR_ID` is used as default if no `vendorId` query param is present.
 - You can override vendor at runtime with `?vendorId=<uuid>`.
 
 ### 3) Run locally
@@ -57,7 +56,7 @@ Notes:
 npm run dev
 ```
 
-Open the local URL printed by Vite (usually `http://localhost:5173`).
+Open `http://localhost:3000`.
 
 ## Build and Preview
 
@@ -82,16 +81,16 @@ vercel --prod --name vendor-profilepage
 vercel --prod
 ```
 
-After deploy, configure the same `VITE_*` variables in Vercel Project Settings -> Environment Variables.
+After deploy, configure the same `NEXT_PUBLIC_*` variables in Vercel Project Settings -> Environment Variables.
 
 ## Runtime Wiring
 
 - Vendor resolution:
   - Query param: `?vendorId=<uuid>`
-  - Fallback: `VITE_VENDOR_ID`
+  - Fallback: `NEXT_PUBLIC_VENDOR_ID`
 - CTA URLs:
-  - `VITE_BOOK_SITE_VISIT_URL`
-  - `VITE_CONTACT_TATVAOPS_URL`
+  - `NEXT_PUBLIC_BOOK_SITE_VISIT_URL`
+  - `NEXT_PUBLIC_CONTACT_TATVAOPS_URL`
 
 ## Available Scripts
 

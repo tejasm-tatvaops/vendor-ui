@@ -172,11 +172,11 @@ export function PortfolioGallery({ items, testimonials }: Props) {
                   {testimonials.length > 0 ? (
                     <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                       <p className="text-sm leading-6 text-slate-700">
-                        "
+                        &quot;
                         {testimonials[Math.abs(
                           project.title.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
                         ) % testimonials.length].comment}
-                        "
+                        &quot;
                       </p>
                       <p className="mt-2 text-xs font-semibold text-slate-900">
                         —{" "}
