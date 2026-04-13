@@ -76,6 +76,19 @@ export type VendorData = {
   aiInsight: string;
   mapAddress: string;
   lastUpdatedAt?: string;
+  bankName?: string;
+  bankAccountNumber?: string;
+  ifscCode?: string;
+  minimumProjectBudget?: number;
+  alternateContactNumber?: string;
+  designation?: string;
+  additionalGstNumbers?: string[];
+  gstCertificateUrl?: string;
+  panCardUrl?: string;
+  cancelledChequeUrl?: string;
+  workSampleUrls?: string[];
+  kycStatus?: "pending" | "verified" | "rejected";
+  profileCompletionPercent?: number;
 };
 
 const sampleImages = [
@@ -217,5 +230,18 @@ export const vendorMockData: VendorData = {
   aiInsight:
     "Best suited for budget residential projects in Kochi. Strong in on-time delivery and transparent execution; less suited for ultra-luxury interior detailing.",
   mapAddress: "Kochi, Kerala",
-  lastUpdatedAt: new Date().toISOString()
+  lastUpdatedAt: new Date().toISOString(),
+  bankName: "HDFC Bank",
+  bankAccountNumber: "12345678901234",
+  ifscCode: "HDFC0001234",
+  minimumProjectBudget: 250000,
+  alternateContactNumber: "8123456789",
+  designation: "Director",
+  additionalGstNumbers: ["32AAHCR7467A2ZJ"],
+  gstCertificateUrl: sampleImages[0],
+  panCardUrl: sampleImages[1],
+  cancelledChequeUrl: sampleImages[2],
+  workSampleUrls: [sampleImages[0], sampleImages[1]],
+  kycStatus: "verified",
+  profileCompletionPercent: 92
 };

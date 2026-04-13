@@ -11,6 +11,15 @@ type Props = {
   projectsAssigned: number;
   totalProjects: number;
   certificationDocuments: CertificationDocument[];
+  kycStatus?: "pending" | "verified" | "rejected";
+  profileCompletionPercent?: number;
+  bankName?: string;
+  bankAccountNumber?: string;
+  ifscCode?: string;
+  minimumProjectBudget?: number;
+  alternateContactNumber?: string;
+  designation?: string;
+  additionalGstNumbers?: string[];
 };
 
 export function CertificationsAndStats({
@@ -21,8 +30,27 @@ export function CertificationsAndStats({
   projectsOngoing,
   projectsAssigned,
   totalProjects,
-  certificationDocuments
+  certificationDocuments,
+  kycStatus,
+  profileCompletionPercent,
+  bankName,
+  bankAccountNumber,
+  ifscCode,
+  minimumProjectBudget,
+  alternateContactNumber,
+  designation,
+  additionalGstNumbers
 }: Props) {
+  const kycBadge =
+    kycStatus === "verified"
+      ? { label: "KYC Verified", tone: "bg-emerald-50 text-emerald-700" }
+      : kycStatus === "rejected"
+        ? { label: "KYC Rejected", tone: "bg-rose-50 text-rose-700" }
+        : { label: "KYC Pending", tone: "bg-amber-50 text-amber-700" };
+  const maskedAccount = bankAccountNumber ? `••••${bankAccountNumber.slice(-4)}` : "Not shared";
+  const formatInr = (value?: number) =>
+    typeof value === "number" ? `Rs ${new Intl.NumberFormat("en-IN").format(value)}` : "Not shared";
+
   const certCards = [
     {
       label: "GSTIN",
@@ -44,6 +72,13 @@ export function CertificationsAndStats({
       status: "Active",
       statusTone: "bg-slate-100 text-slate-700",
       meta: "Incorporation details validated"
+    },
+    {
+      label: "KYC Status",
+      value: kycBadge.label,
+      status: `${profileCompletionPercent ?? 0}%`,
+      statusTone: "bg-blue-50 text-blue-700",
+      meta: "Profile completion"
     }
   ];
   const stats = [
@@ -58,7 +93,7 @@ export function CertificationsAndStats({
     <section className={cardClassName}>
       <SectionTitle icon="🛡️" title="Certifications & Trust Signals" subtitle="Compliance status and delivery capacity at a glance" />
 
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <div className="mt-4 grid gap-3 md:grid-cols-4">
         {certCards.map((card) => (
           <article key={card.label} className="rounded-xl border border-slate-200 bg-white p-3">
             <div className="flex items-start justify-between gap-2">
@@ -71,9 +106,36 @@ export function CertificationsAndStats({
         ))}
       </div>
 
-      <div className="mt-4 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
-        KYC Complete • GST Active • PAN Matched • Compliance Score: 92/100
+      <div className={`mt-4 rounded-lg border px-3 py-2 text-xs ${kycBadge.tone} border-current/20`}>
+        {kycBadge.label} • GST Active • PAN Matched • Compliance Score: {profileCompletionPercent ?? 0}/100
       </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <article className="rounded-xl border border-slate-200 bg-white p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Banking Details</p>
+          <p className="mt-2 text-sm text-slate-700">Bank: <span className="font-semibold text-slate-900">{bankName ?? "Not shared"}</span></p>
+          <p className="mt-1 text-sm text-slate-700">Account: <span className="font-semibold text-slate-900">{maskedAccount}</span></p>
+          <p className="mt-1 text-sm text-slate-700">IFSC: <span className="font-semibold text-slate-900">{ifscCode ?? "Not shared"}</span></p>
+        </article>
+        <article className="rounded-xl border border-slate-200 bg-white p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Onboarding Details</p>
+          <p className="mt-2 text-sm text-slate-700">
+            Minimum Budget: <span className="font-semibold text-slate-900">{formatInr(minimumProjectBudget)}</span>
+          </p>
+          <p className="mt-1 text-sm text-slate-700">
+            Alternate Contact: <span className="font-semibold text-slate-900">{alternateContactNumber ?? "Not shared"}</span>
+          </p>
+          <p className="mt-1 text-sm text-slate-700">
+            Designation: <span className="font-semibold text-slate-900">{designation ?? "Not shared"}</span>
+          </p>
+        </article>
+      </div>
+
+      {additionalGstNumbers?.length ? (
+        <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
+          Additional GST Numbers: {additionalGstNumbers.join(", ")}
+        </div>
+      ) : null}
 
       <div className="mt-4">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Certification Gallery</p>

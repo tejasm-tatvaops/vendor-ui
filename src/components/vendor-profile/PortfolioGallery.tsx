@@ -148,18 +148,18 @@ export function PortfolioGallery({ items, testimonials }: Props) {
                       ) : null}
                     </div>
                   ) : (
-                    <div className="overflow-hidden rounded-lg border border-slate-200">
+                    <div className="relative aspect-video overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
                       {project.youtubeUrl ? (
                         <iframe
                           title={`${project.title} YouTube video`}
                           src={project.youtubeUrl.includes("embed") ? project.youtubeUrl : project.youtubeUrl.replace("watch?v=", "embed/")}
-                          className="h-56 w-full"
+                          className="h-full w-full"
                           loading="lazy"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
                         />
                       ) : (
-                        <div className="grid h-56 place-items-center bg-slate-50 text-sm text-slate-500">
+                        <div className="grid h-full w-full place-items-center bg-slate-50 text-sm text-slate-500">
                           No YouTube video added
                         </div>
                       )}

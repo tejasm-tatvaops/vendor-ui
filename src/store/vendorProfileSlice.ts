@@ -31,6 +31,19 @@ type VendorRow = {
   is_verified: boolean | null;
   created_at: string | null;
   updated_at?: string | null;
+  bank_name?: string | null;
+  bank_account_number?: string | null;
+  ifsc_code?: string | null;
+  minimum_project_budget?: number | null;
+  alternate_contact_number?: string | null;
+  designation?: string | null;
+  additional_gst_numbers?: string[] | null;
+  gst_certificate_url?: string | null;
+  pan_card_url?: string | null;
+  cancelled_cheque_url?: string | null;
+  work_sample_urls?: string[] | null;
+  kyc_status?: "pending" | "verified" | "rejected" | null;
+  profile_completion_percent?: number | null;
 };
 
 type ReviewRow = {
@@ -231,7 +244,20 @@ const mapVendorToUiData = (
     certificationDocuments,
     aiInsight: vendorRow.ai_insight ?? "AI insight will appear when enough project history is available.",
     mapAddress: vendorRow.map_address ?? vendorRow.location ?? "Kochi",
-    lastUpdatedAt: vendorRow.updated_at ?? vendorRow.created_at ?? undefined
+    lastUpdatedAt: vendorRow.updated_at ?? vendorRow.created_at ?? undefined,
+    bankName: vendorRow.bank_name ?? undefined,
+    bankAccountNumber: vendorRow.bank_account_number ?? undefined,
+    ifscCode: vendorRow.ifsc_code ?? undefined,
+    minimumProjectBudget: vendorRow.minimum_project_budget ?? undefined,
+    alternateContactNumber: vendorRow.alternate_contact_number ?? undefined,
+    designation: vendorRow.designation ?? undefined,
+    additionalGstNumbers: vendorRow.additional_gst_numbers ?? [],
+    gstCertificateUrl: vendorRow.gst_certificate_url ?? undefined,
+    panCardUrl: vendorRow.pan_card_url ?? undefined,
+    cancelledChequeUrl: vendorRow.cancelled_cheque_url ?? undefined,
+    workSampleUrls: vendorRow.work_sample_urls ?? [],
+    kycStatus: vendorRow.kyc_status ?? "pending",
+    profileCompletionPercent: vendorRow.profile_completion_percent ?? 0
   };
 };
 

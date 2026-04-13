@@ -207,6 +207,15 @@ export default function VendorProfilePage() {
             projectsAssigned={vendor.projectsAssigned}
             totalProjects={totalProjects}
             certificationDocuments={vendor.certificationDocuments}
+            kycStatus={vendor.kycStatus}
+            profileCompletionPercent={vendor.profileCompletionPercent}
+            bankName={vendor.bankName}
+            bankAccountNumber={vendor.bankAccountNumber}
+            ifscCode={vendor.ifscCode}
+            minimumProjectBudget={vendor.minimumProjectBudget}
+            alternateContactNumber={vendor.alternateContactNumber}
+            designation={vendor.designation}
+            additionalGstNumbers={vendor.additionalGstNumbers}
           />
 
           <ServicesOffered services={vendor.services} />
