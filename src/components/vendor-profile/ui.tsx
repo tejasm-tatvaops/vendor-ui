@@ -212,7 +212,7 @@ function BrandAvatar({
   const initials = useMemo(() => initialsFromDisplayName(fullName, companyName), [fullName, companyName]);
 
   const debugOverride = useMemo(() => {
-    const raw = import.meta.env.VITE_DEBUG_BRAND_IMAGE_URL;
+    const raw = process.env.NEXT_PUBLIC_DEBUG_BRAND_IMAGE_URL;
     return typeof raw === "string" && raw.trim().length > 0 ? raw.trim() : undefined;
   }, []);
 
@@ -237,7 +237,7 @@ function BrandAvatar({
   }, [apiLoadFailed, apiUrl, placeholderLoadFailed]);
 
   useEffect(() => {
-    if (!import.meta.env.DEV) return;
+    if (process.env.NODE_ENV !== "development") return;
     console.log("[BrandAvatar] profile image URL", {
       extractedFromApi: imageUrl?.trim() ?? null,
       debugOverride: debugOverride ?? null,
