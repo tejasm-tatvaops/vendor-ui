@@ -12,7 +12,7 @@ import { TrustScore } from "../components/vendor-profile/TrustScore";
 import { VendorHeader } from "../components/vendor-profile/VendorHeader";
 import { runtimeConfig, resolveVendorId } from "../config/runtime";
 import { PortfolioSkeleton, ReviewsSkeleton, VendorHeaderSkeleton } from "../components/vendor-profile/Skeletons";
-import { ErrorState, SkeletonBlock, SkeletonCard, VendorBrandApiPanel } from "../components/vendor-profile/ui";
+import { ErrorState, SkeletonBlock, SkeletonCard } from "../components/vendor-profile/ui";
 import { calculateTrustScore, calculateTrustScoreBreakdown, getDisplayExperience } from "../components/vendor-profile/utils";
 import { supabase } from "../lib/supabase";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -150,26 +150,27 @@ export default function VendorProfilePage() {
       <main className="min-h-screen bg-slate-50 py-8">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
           <div className="space-y-6">
-            <VendorBrandApiPanel />
             <VendorHeaderSkeleton />
+            <SkeletonCard>
+              <SkeletonBlock className="h-6 w-32" />
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <SkeletonBlock key={i} className="h-36 rounded-xl" />
+                ))}
+              </div>
+            </SkeletonCard>
             <PortfolioSkeleton />
             <ReviewsSkeleton />
-            <SkeletonCard>
-              <SkeletonBlock className="h-6 w-2/3" />
-              <SkeletonBlock className="mt-3 h-10 w-full" />
-              <SkeletonBlock className="mt-2 h-10 w-full" />
-              <SkeletonBlock className="mt-2 h-10 w-full" />
-            </SkeletonCard>
           </div>
         </div>
       </main>
     );
   }
 
-  const trustScore = calculateTrustScore(vendor);
-  const trustBreakdown = calculateTrustScoreBreakdown(vendor);
   const experience = getDisplayExperience(vendor);
   const totalProjects = vendor.projectsCompleted + vendor.projectsOngoing;
+  const trustScore = calculateTrustScore(vendor);
+  const trustBreakdown = calculateTrustScoreBreakdown(vendor);
   const lastUpdatedLabel = vendor.lastUpdatedAt
     ? new Date(vendor.lastUpdatedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
     : null;
@@ -178,7 +179,6 @@ export default function VendorProfilePage() {
     <main className="min-h-screen bg-slate-50 py-6 sm:py-8">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
         <div className="space-y-6">
-          <VendorBrandApiPanel />
           <VendorHeader
             vendor={vendor}
             experience={experience}
@@ -192,6 +192,8 @@ export default function VendorProfilePage() {
               navigateTo(runtimeConfig.contactTatvaopsUrl);
             }}
           />
+
+          <ServicesOffered services={vendor.services} />
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             <TrustScore score={trustScore} homeowners={vendor.trustByHomeowners} breakdown={trustBreakdown} />
             <RatingSection vendor={vendor} />
@@ -202,32 +204,25 @@ export default function VendorProfilePage() {
             gst={vendor.gstNumber}
             pan={vendor.panNumber}
             companyType={vendor.companyType}
-            projectsCompleted={vendor.projectsCompleted}
-            projectsOngoing={vendor.projectsOngoing}
-            projectsAssigned={vendor.projectsAssigned}
-            totalProjects={totalProjects}
             certificationDocuments={vendor.certificationDocuments}
-            kycStatus={vendor.kycStatus}
             profileCompletionPercent={vendor.profileCompletionPercent}
-            bankName={vendor.bankName}
-            bankAccountNumber={vendor.bankAccountNumber}
-            ifscCode={vendor.ifscCode}
-            minimumProjectBudget={vendor.minimumProjectBudget}
-            alternateContactNumber={vendor.alternateContactNumber}
-            designation={vendor.designation}
-            additionalGstNumbers={vendor.additionalGstNumbers}
+            kycStatus={vendor.kycStatus}
           />
 
-          <ServicesOffered services={vendor.services} />
-          <PortfolioGallery items={vendor.portfolio} testimonials={vendor.reviews} />
-          <PricingSection basePricePerSqft={vendor.basePricePerSqft} pricingTiers={vendor.pricingTiers} />
           <AvailabilitySection
-            nextAvailableDate={vendor.nextAvailableDate}
+            totalProjects={totalProjects}
+            projectsCompleted={vendor.projectsCompleted}
+            projectsAssigned={vendor.projectsAssigned}
             projectsOngoing={vendor.projectsOngoing}
             avgCompletionTime={vendor.avgCompletionTime}
           />
-          <LocationMap location={vendor.location} address={vendor.mapAddress} />
+
+          <PortfolioGallery items={vendor.portfolio} testimonials={vendor.reviews} />
+
+          <PricingSection basePricePerSqft={vendor.basePricePerSqft} pricingTiers={vendor.pricingTiers} />
+
           <ReviewsList reviews={vendor.reviews} />
+          <LocationMap location={vendor.location} address={vendor.mapAddress} />
         </div>
       </div>
     </main>

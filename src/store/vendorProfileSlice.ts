@@ -55,6 +55,8 @@ type ReviewRow = {
   comment: string | null;
   verified_project: boolean | null;
   created_at: string | null;
+  /** When column exists: 'google' | 'platform' */
+  review_source?: string | null;
 };
 
 type ServiceRow = {
@@ -120,7 +122,8 @@ const toReviewItem = (row: ReviewRow): ReviewItem => ({
   date: toDisplayDate(row.created_at),
   rating: Number(row.rating ?? 0),
   comment: row.comment ?? "Customer shared a positive experience.",
-  verifiedProject: Boolean(row.verified_project)
+  verifiedProject: Boolean(row.verified_project),
+  source: row.review_source === "google" ? "google" : "platform"
 });
 
 const buildRatingBreakdown = (reviews: ReviewItem[]): VendorData["ratingBreakdown"] => {

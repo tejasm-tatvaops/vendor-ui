@@ -12,6 +12,8 @@ export type ReviewItem = {
   rating: number;
   comment: string;
   verifiedProject: boolean;
+  /** Platform vs Google Business review (for badge + filter) */
+  source?: "platform" | "google";
   images?: string[];
 };
 
@@ -99,12 +101,12 @@ const sampleImages = [
 
 export const vendorMockData: VendorData = {
   id: "69d10b7cd8c73e8f8d7f3929",
-  companyName: "RANDOM NUMBERS PRIVATE LIMITED",
-  legalName: "RANDOM NUMBERS PRIVATE LIMITED",
+  companyName: "Tatva Constructions Pvt Ltd",
+  legalName: "EROEI Constructions Private Limited",
   verified: true,
-  ownerName: "Rahul Chandran",
-  email: "mahadev.h@tatvaops.com",
-  phone: "7483609399",
+  ownerName: "Yash Gupta",
+  email: "yash@tatvaops.com",
+  phone: "9876543210",
   gstNumber: "32AAHCR7467A1ZI",
   panNumber: "AAHCR7467A",
   companyType: "Private Limited Company",
@@ -113,12 +115,12 @@ export const vendorMockData: VendorData = {
   location: "Kochi",
   natureOfBusiness: "Supplier of Services",
   description:
-    "Execution-focused residential contractor with strong delivery consistency in apartment and villa projects.",
+    "Execution-focused residential contractor with reliable timelines and transparent BOQ.",
   services: [
     "Residential Construction",
     "Interiors",
     "Painting",
-    "Plumbing Services",
+    "Plumbing",
     "Electrical Services",
     "Solar Services",
     "Event Management",
@@ -127,7 +129,7 @@ export const vendorMockData: VendorData = {
   projectsCompleted: 21,
   projectsOngoing: 2,
   projectsAssigned: 4,
-  yearsOfExperience: 0,
+  yearsOfExperience: 4,
   nextAvailableDate: "2026-05-14",
   avgCompletionTime: "4.8 months",
   trustByHomeowners: 21,
@@ -162,6 +164,7 @@ export const vendorMockData: VendorData = {
       date: "Mar 2026",
       rating: 4,
       verifiedProject: true,
+      source: "google",
       comment:
         "Good value for money and quality finishing for the budget segment. Slight delay during tile procurement.",
       images: [sampleImages[1], sampleImages[2]]
@@ -180,12 +183,13 @@ export const vendorMockData: VendorData = {
   portfolio: [
     {
       id: "p1",
-      title: "Luxury Villa - Plumbing",
+      title: "Metro Greens - Electrical Upgrade",
       category: "Villas",
       date: "Apr 2026",
       image: sampleImages[0],
       beforeImage: sampleImages[2],
-      afterImage: sampleImages[0]
+      afterImage: sampleImages[0],
+      youtubeUrl: "https://www.youtube.com/watch?v=ysz5S6PUM-U"
     },
     {
       id: "p2",
