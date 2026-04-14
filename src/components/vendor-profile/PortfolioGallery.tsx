@@ -192,30 +192,7 @@ export function PortfolioGallery({ items, testimonials }: Props) {
                             ) : (
                               <BeforeAfterSlider beforeSrc={beforeSrc} afterSrc={afterSrc} alt={project.title} />
                             )}
-                            {showSlideshowControls ? (
-                              <div className="pointer-events-none absolute bottom-3 right-3 rounded-md bg-white/95 px-2 py-0.5 text-xs font-medium text-slate-600 shadow-sm ring-1 ring-slate-200/80">
-                                {pairIndex + 1}/{pairLength}
-                              </div>
-                            ) : null}
                           </div>
-                          {showSlideshowControls ? (
-                            <div className="mt-3 flex items-center justify-between text-xs">
-                              <button
-                                type="button"
-                                className="rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-50"
-                                onClick={() => movePair(project.id, "prev", pairLength)}
-                              >
-                                Prev pair
-                              </button>
-                              <button
-                                type="button"
-                                className="rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-50"
-                                onClick={() => movePair(project.id, "next", pairLength)}
-                              >
-                                Next pair
-                              </button>
-                            </div>
-                          ) : null}
                         </div>
                       ) : (
                         <div className="relative aspect-video overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
