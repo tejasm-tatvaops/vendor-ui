@@ -18,13 +18,11 @@ export function AvailabilitySection({
 }: Props) {
   return (
     <section className={cardClassName}>
-      <div className="mb-6 flex items-start gap-3">
-        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600 ring-1 ring-rose-100">
+      <div className="mb-6 flex items-center gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600 ring-1 ring-rose-100">
           <Briefcase className="h-5 w-5" strokeWidth={2} aria-hidden />
         </span>
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">Availability & Timeline</h2>
-        </div>
+        <h2 className="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">Availability & Timeline</h2>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">

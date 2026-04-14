@@ -54,8 +54,7 @@ export function CertificationsAndStats({
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">PAN</p>
             <span className="text-xs font-bold text-emerald-600">Verified</span>
           </div>
-          <p className="mt-3 text-lg font-bold leading-tight text-slate-900">PAN Verified</p>
-          <p className="mt-2 break-all text-sm font-medium text-slate-700">{pan}</p>
+          <p className="mt-3 text-lg font-bold leading-tight text-slate-900" title={pan}>PAN Verified</p>
           <p className="mt-3 text-xs text-slate-500">Matched with legal entity</p>
         </article>
 

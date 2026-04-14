@@ -31,12 +31,15 @@ export function TrustScore({ score, homeowners, breakdown }: Props) {
 
   return (
     <section className={cardClassName}>
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">Tatva Trust Score</p>
+        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${trustTone}`}>{trustLevel}</span>
+      </div>
+      <div className="mt-3 flex items-end justify-between gap-3">
         <p className="text-4xl font-bold leading-none tracking-tight text-slate-900">
           {score}
           <span className="text-2xl font-semibold text-slate-500">/100</span>
         </p>
-        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${trustTone}`}>{trustLevel}</span>
       </div>
       <div className="mt-3 h-1.5 w-full rounded-full bg-slate-100">
         <div
